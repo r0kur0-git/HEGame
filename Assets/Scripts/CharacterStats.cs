@@ -4,13 +4,6 @@ using UnityEngine;
 
 namespace PRJCTA.HOLLOWECHOES
 {
-    public enum ObjectType
-    {
-        None,
-        Player,
-        Enemy,
-    }
-
     public class CharacterStats : MonoBehaviour
     {
         public int healthLevel = 20;
