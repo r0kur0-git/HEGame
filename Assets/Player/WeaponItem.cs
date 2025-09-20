@@ -26,7 +26,7 @@ namespace PRJCTA.HOLLOWECHOES
         public string AttackSeq3;
 
         [Header("Special Attack")]
-        public string AttackSeqS1;
+        public string AttackSpecial1;
 
         [Header("Aerial Attack")]
         public string A_AttackSeq1;

@@ -20,7 +20,7 @@ MonoBehaviour:
   boonDescription: 
   flatAttackBonus: 20
   percentAttackBonus: 0
-  abilityName: Fire DoT
+  abilityName: Sword Combo Ex
   statIncrease: 0
   utilityEffect: 
   affectedWeaponType: 0

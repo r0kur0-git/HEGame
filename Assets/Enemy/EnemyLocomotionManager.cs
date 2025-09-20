@@ -10,10 +10,6 @@ namespace PRJCTA.HOLLOWECHOES
         EnemyAnimatorManager enemyAnimatorManager;
         Rigidbody enemyRigidbody;
 
-        private void Start()
-        {
-        }
-
         public void Awake()
         {
             enemyAnimatorManager = GetComponentInChildren<EnemyAnimatorManager>();

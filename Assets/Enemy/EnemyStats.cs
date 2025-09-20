@@ -10,7 +10,7 @@ namespace PRJCTA.HOLLOWECHOES
         public PlayerStats playerStats;
         public Transform enemyHead;
         public GameObject destroyOnDeath;
-        public new ParticleSystem particleSystem;
+        //public new ParticleSystem particleSystem;
         public GameObject enemyLockOn;
         public GameObject spawnObject;
 
@@ -30,7 +30,7 @@ namespace PRJCTA.HOLLOWECHOES
             maxHealth = SetMaxHealthFromHealthLevel();
             currentHealth = maxHealth;
             enemyHealthbar.SetMaxHealth(maxHealth);
-            particleSystem.Stop();
+            //particleSystem.Stop();
         }
 
         private void OnEnable()
@@ -79,7 +79,63 @@ namespace PRJCTA.HOLLOWECHOES
 
         public void EnemyTakeDamage(int damage, ElementType elementalType)
         {
-            currentHealth = currentHealth - damage;
+            currentHealth -= damage;
+
+            // Show health bar only when damaged
+            if (enemyHealthbar != null)
+            {
+                enemyHealthbar.SetTarget(enemyHead);
+                enemyHealthbar.image.SetActive(true);
+                enemyHealthbar.SetCurrentHealth(currentHealth);
+            }
+
+            animator.Play("Hit");
+
+            if (currentHealth <= 0)
+            {
+                isDead = true;
+                gameObject.tag = "Dead";
+                enemyCount++;
+                currentHealth = 0;
+
+                if (isDead)
+                {
+                    animator.Play("Death");
+                    StartCoroutine(DestroyEnemy());
+                    GetComponent<EnemyManager>().enabled = false;
+
+                    Destroy(destroyOnDeath);
+                }
+
+                print(enemyCount);
+            }
+
+            switch (elementalType)
+            {
+                case ElementType.None:
+                    break;
+
+                case ElementType.Fire:
+                    if (playerStats != null && playerStats.hasFireDoT)
+                    {
+                        ApplyDamageOverTime(3, 1f, 5f, "");
+                    }
+                    print("burning");
+                    break;
+
+                case ElementType.Ice:
+                    print("freezing");
+                    break;
+
+                case ElementType.Electric:
+                    ApplyDamageOverTime(5, 1.5f, 5, "Hit");
+                    print("shock");
+                    break;
+
+                default:
+                    break;
+            }
+            /*currentHealth = currentHealth - damage;
             enemyHealthbar.SetCurrentHealth(currentHealth);
 
             animator.Play("Hit");
@@ -132,7 +188,7 @@ namespace PRJCTA.HOLLOWECHOES
                 // Add cases for other elemental types if needed
                 default:
                     break;
-            }
+            }*/
         }
 
         public void ApplyDamageOverTime(int damagePerTick, float tickInterval, float duration, string tickAnimation)

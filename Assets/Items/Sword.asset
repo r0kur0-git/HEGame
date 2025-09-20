@@ -16,13 +16,13 @@ MonoBehaviour:
   itemName: Sword
   quantity: 0
   WeaponType: 2
-  modelPrefab: {fileID: 149494, guid: 79aa677bbe2b9a74b91bad978448ce88, type: 3}
+  modelPrefab: {fileID: 863051473547632820, guid: a113e2473b9147d4b9d4e37ddd2bf7c5, type: 3}
   animatorController: {fileID: 0}
   isUnarmed: 0
   AttackSeq1: Attack1
   AttackSeq2: Attack2
   AttackSeq3: Attack3
-  AttackSeqS1: Sword 1
+  AttackSpecial1: AttackSpecial1
   A_AttackSeq1: Attack1 0
   A_AttackSeq2: Attack2 0
   A_AttackSeq3: Attack3 0

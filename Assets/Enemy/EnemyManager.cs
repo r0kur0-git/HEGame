@@ -18,20 +18,20 @@ namespace PRJCTA.HOLLOWECHOES
 
         public bool isPerformingAction;
         public bool isParried;
-        public float distanceFromTarget;
-        public float rotationSpeed = 50;
+        public float rotationSpeed = 9999f;
         public float maximumAttackRange = 20f;
-
+        public float maximumFollowRange;
+        public float distanceFromTarget;
         [Header("AI Settings")]
         public float detectionRadius = 20;
         //DETECTION FOV
         public float maximumDetectionAngle = 50;
         public float minimumDetectionAngle = -50;
-        public float viewableAngle;
         public float currentRecoveryTime = 0;
 
         private void Awake()
         {
+            animator = GetComponent<Animator>();
             enemyLocomotionManager = GetComponent<EnemyLocomotionManager>();
             enemyAnimatorManager = GetComponentInChildren<EnemyAnimatorManager>();
             enemyStats = GetComponent<EnemyStats>();
@@ -46,6 +46,7 @@ namespace PRJCTA.HOLLOWECHOES
 
         private void Update()
         {
+            isPerformingAction = animator.GetBool("isInteracting");
             float delta = Time.deltaTime;
             HandleRecoveryTimer();
         }
@@ -95,13 +96,15 @@ namespace PRJCTA.HOLLOWECHOES
                 currentRecoveryTime -= Time.deltaTime;
             }
 
-            if (isPerformingAction)
+            if (isPerformingAction && currentRecoveryTime <= 0.1f)
             {
-                if (currentRecoveryTime <= 0)
-                {
-                    isPerformingAction = false;
-                }
+                isPerformingAction = false;
             }
+        }
+
+        public void RecoveryTime()
+        {
+            isPerformingAction = false;
         }
 
         private void OnDrawGizmosSelected()

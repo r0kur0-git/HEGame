@@ -15,12 +15,22 @@ namespace PRJCTA.HOLLOWECHOES
 
         private Vector3 previousPosition;
         private Rigidbody rb;
+        Collider damageCollider;
 
         private void Awake()
         {
+            damageCollider = GetComponent<Collider>();
+            damageCollider.gameObject.SetActive(true);
+            damageCollider.isTrigger = true;
+            damageCollider.enabled = false;
+
             if (CompareTag("Bullet"))
             {
                 Destroy(gameObject, life);
+            }
+            else
+            {
+                return;
             }
         }
 
@@ -32,7 +42,14 @@ namespace PRJCTA.HOLLOWECHOES
 
         private void FixedUpdate()
         {
-            StartCoroutine(Predict());
+            if (CompareTag("Bullet"))
+            {
+                StartCoroutine(Predict());
+            }
+            else
+            {
+                return;
+            }
         }
 
         IEnumerator Predict()
@@ -50,6 +67,16 @@ namespace PRJCTA.HOLLOWECHOES
                 yield return 0;
                 OnTriggerEnter(hit2.collider);
             }
+        }
+
+        public void EnableDamageCollider()
+        {
+            damageCollider.enabled = true;
+        }
+
+        public void DisableDamageCollider()
+        {
+            damageCollider.enabled = false;
         }
 
         private void OnTriggerEnter(Collider other)
@@ -82,8 +109,10 @@ namespace PRJCTA.HOLLOWECHOES
                     }
                 }
 
-                // Destroy the bullet
-                Destroy(gameObject);
+                if (CompareTag("Bullet") && other.CompareTag("Enemy"))
+                {
+                    Destroy(gameObject);
+                }
 
                     break;
 
@@ -114,7 +143,7 @@ namespace PRJCTA.HOLLOWECHOES
                     break;
             }
 
-            if (other.CompareTag("Object"))
+            if (CompareTag("Bullet") && other.CompareTag("Object"))
             {
                 Destroy(gameObject);
             }

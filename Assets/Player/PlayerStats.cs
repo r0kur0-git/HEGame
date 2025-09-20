@@ -16,6 +16,7 @@ namespace PRJCTA.HOLLOWECHOES
         public Dictionary<WeaponType, float> percentBonuses = new Dictionary<WeaponType, float>();
 
         public bool swordUnlocked = false;
+        public bool swordExtension;
         public bool hasFireDoT;
         public bool hasIceDoT;
         public bool hasLightningDoT;
@@ -119,11 +120,21 @@ namespace PRJCTA.HOLLOWECHOES
                             break;
 
                         case "Ice DoT":
+                            hasIceDoT = true;
+                            Debug.Log($"Applied ability upgrade: {boon.itemName}");
                             break;
 
                         case "Lightning DoT":
                             hasLightningDoT = true;
                             Debug.Log($"Applied ability upgrade: {boon.itemName}");
+                            break;
+
+                        case "Sword Combo Ex":
+                            if (swordUnlocked == true)
+                            {
+                                SwordEx(WeaponType.Sword);
+                                Debug.Log($"Applied ability upgrade: {boon.itemName}");
+                            }
                             break;
                     }
                     break;
@@ -165,7 +176,14 @@ namespace PRJCTA.HOLLOWECHOES
         {
             type = WeaponType.Sword;
             swordUnlocked = true;
-            Debug.Log("Player weapon type changed to: " + type);
+            Debug.Log("Player weapon type unlocked: " + type);
+        }
+
+        public void SwordEx(WeaponType type)
+        {
+            type = WeaponType.Sword;
+            swordExtension = true;
+            Debug.Log("Player weapon combo unlocked: " + type + " extension");
         }
     }
 }

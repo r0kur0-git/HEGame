@@ -15,27 +15,16 @@ namespace PRJCTA.HOLLOWECHOES
         private void Start()
         {
             cam = Camera.main;
+            image.SetActive(false);
         }
 
         void Update()
         {
-            if (Wand.instance != null && Wand.instance.nearestEnemy != null)
+            if (enemyHead != null)
             {
-                enemyHead = Wand.instance.nearestEnemy.transform;
-                Vector3 screenPos = cam.WorldToScreenPoint(enemyHead.position + Vector3.up * 2f);
+                Vector3 screenPos = cam.WorldToScreenPoint(enemyHead.position + Vector3.up);
                 slider.transform.position = screenPos;
             }
-
-            if (Wand.instance.nearestEnemy == null)
-            {
-                image.SetActive(false);
-            }
-            else
-            {
-                image.SetActive(true);
-            }
-            
-            //transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
         }
 
         public void SetMaxHealth(int maxHealth)
@@ -51,7 +40,17 @@ namespace PRJCTA.HOLLOWECHOES
 
         public void SetTarget(Transform enemy)
         {
-            enemyHead = enemy; // now it will follow this enemy
+            enemyHead = enemy;
+        }
+
+        public void ShowBar()
+        {
+            image.SetActive(true);
+        }
+
+        public void HideBar()
+        {
+            image.SetActive(false);
         }
     }
 }

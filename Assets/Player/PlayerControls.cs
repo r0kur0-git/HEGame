@@ -190,6 +190,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Special"",
+                    ""type"": ""Button"",
+                    ""id"": ""94aa087e-7a50-4520-9b32-97d925f2e99e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CycleWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""c90ed32d-c2a3-4e40-8449-d6ee36f2edb7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -201,6 +219,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Basic"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2995722e-709b-4ca7-81f9-eaafb1f2e95e"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Hold(duration=0.5)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Special"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""98e986ee-5b61-468d-821d-b38ea7a74d0c"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CycleWeapon"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -217,6 +257,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // PlayerActions
         m_PlayerActions = asset.FindActionMap("PlayerActions", throwIfNotFound: true);
         m_PlayerActions_Basic = m_PlayerActions.FindAction("Basic", throwIfNotFound: true);
+        m_PlayerActions_Special = m_PlayerActions.FindAction("Special", throwIfNotFound: true);
+        m_PlayerActions_CycleWeapon = m_PlayerActions.FindAction("CycleWeapon", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -417,6 +459,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_PlayerActions;
     private List<IPlayerActionsActions> m_PlayerActionsActionsCallbackInterfaces = new List<IPlayerActionsActions>();
     private readonly InputAction m_PlayerActions_Basic;
+    private readonly InputAction m_PlayerActions_Special;
+    private readonly InputAction m_PlayerActions_CycleWeapon;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerActions".
     /// </summary>
@@ -432,6 +476,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerActions/Basic".
         /// </summary>
         public InputAction @Basic => m_Wrapper.m_PlayerActions_Basic;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerActions/Special".
+        /// </summary>
+        public InputAction @Special => m_Wrapper.m_PlayerActions_Special;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerActions/CycleWeapon".
+        /// </summary>
+        public InputAction @CycleWeapon => m_Wrapper.m_PlayerActions_CycleWeapon;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -461,6 +513,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Basic.started += instance.OnBasic;
             @Basic.performed += instance.OnBasic;
             @Basic.canceled += instance.OnBasic;
+            @Special.started += instance.OnSpecial;
+            @Special.performed += instance.OnSpecial;
+            @Special.canceled += instance.OnSpecial;
+            @CycleWeapon.started += instance.OnCycleWeapon;
+            @CycleWeapon.performed += instance.OnCycleWeapon;
+            @CycleWeapon.canceled += instance.OnCycleWeapon;
         }
 
         /// <summary>
@@ -475,6 +533,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Basic.started -= instance.OnBasic;
             @Basic.performed -= instance.OnBasic;
             @Basic.canceled -= instance.OnBasic;
+            @Special.started -= instance.OnSpecial;
+            @Special.performed -= instance.OnSpecial;
+            @Special.canceled -= instance.OnSpecial;
+            @CycleWeapon.started -= instance.OnCycleWeapon;
+            @CycleWeapon.performed -= instance.OnCycleWeapon;
+            @CycleWeapon.canceled -= instance.OnCycleWeapon;
         }
 
         /// <summary>
@@ -551,5 +615,19 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnBasic(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Special" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSpecial(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CycleWeapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCycleWeapon(InputAction.CallbackContext context);
     }
 }

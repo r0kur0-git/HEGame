@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace PRJCTA.HOLLOWECHOES
 {
-    public class PlayerWeaponInventory : MonoBehaviour
+    public class WeaponInventory : MonoBehaviour
     {
         WeaponSlotManager weaponSlotManager;
         WeaponHolderSlot weaponHolderSlot;
-        AnimatorHandler animatorHandler;
+        PlayerAnimatorManager playerAnimatorManager;
         public WeaponType weaponType;
         public WeaponItem rightWeapon;
         public WeaponItem[] weaponsInRightHandSlots = new WeaponItem[1];
@@ -17,7 +17,7 @@ namespace PRJCTA.HOLLOWECHOES
         private void Awake()
         {
             weaponSlotManager = GetComponentInChildren<WeaponSlotManager>();
-            animatorHandler = GetComponent<AnimatorHandler>();
+            playerAnimatorManager = GetComponent<PlayerAnimatorManager>();
         }
 
         private void Start()
@@ -29,11 +29,6 @@ namespace PRJCTA.HOLLOWECHOES
         private void Update()
         {
             weaponType = rightWeapon.WeaponType;
-
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                ChangeRightWeapon();
-            }
         }
 
         public void ChangeRightWeapon()
@@ -54,11 +49,11 @@ namespace PRJCTA.HOLLOWECHOES
                 {
                     case WeaponType.Wand:
                         Debug.Log("Switching to Default Animator");
-                        animatorHandler.SwitchToDefault();
+                        playerAnimatorManager.SwitchToDefault();
                         break;
                     case WeaponType.Sword:
                         Debug.Log("Switching to Sword Animator");
-                        animatorHandler.SwitchToSword();
+                        playerAnimatorManager.SwitchToSword();
                         break;
                 }
                 Debug.Log($"Equipped: {rightWeapon.WeaponType}");
