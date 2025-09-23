@@ -80,6 +80,29 @@ namespace PRJCTA.HOLLOWECHOES
         public void EnemyTakeDamage(int damage, ElementType elementalType)
         {
             currentHealth -= damage;
+            ComboRankSystem.Instance.AddStylePoints(25);
+
+            if (playerStats != null)
+            {
+                switch (ComboRankSystem.Instance.currentRank)
+                {
+                    case "D":
+                        playerStats.GainMana(10);
+                        break;
+                    case "C":
+                        playerStats.GainMana(5);
+                        break;
+                    case "B":
+                        playerStats.GainMana(7);
+                        break;
+                    case "A":
+                        playerStats.GainMana(10);
+                        break;
+                    case "S":
+                        playerStats.GainMana(20);
+                        break;
+                }
+            }
 
             // Show health bar only when damaged
             if (enemyHealthbar != null)
@@ -135,60 +158,6 @@ namespace PRJCTA.HOLLOWECHOES
                 default:
                     break;
             }
-            /*currentHealth = currentHealth - damage;
-            enemyHealthbar.SetCurrentHealth(currentHealth);
-
-            animator.Play("Hit");
-
-            if (currentHealth <= 0)
-            {
-                isDead = true;
-                gameObject.tag = "Dead";
-                enemyCount++;
-                currentHealth = 0;
-
-                if (isDead)
-                {
-                    animator.Play("Death");
-                    StartCoroutine(DestroyEnemy());
-                    GetComponent<EnemyManager>().enabled = false;
-                    //GetComponent<EnemyWeaponSlotManager>().enabled = false;
-                    //particleSystem.Play();
-
-                    Destroy(destroyOnDeath);
-                }
-
-                print(enemyCount);
-            }
-
-            switch (elementalType)
-            {
-                case ElementType.None:
-                    break;
-
-                case ElementType.Fire:
-                    if (playerStats != null)
-                    {
-                        if (playerStats.hasFireDoT)
-                        {
-                            ApplyDamageOverTime(3, 1f, 5f, "");
-                        }
-                    }
-                    print("burning");
-                    break;
-
-                case ElementType.Ice:
-                    print("freezing");
-                    break;
-
-                case ElementType.Electric:
-                    ApplyDamageOverTime(5, 1.5f, 5, "Hit");
-                    print("shock");
-                    break;
-                // Add cases for other elemental types if needed
-                default:
-                    break;
-            }*/
         }
 
         public void ApplyDamageOverTime(int damagePerTick, float tickInterval, float duration, string tickAnimation)

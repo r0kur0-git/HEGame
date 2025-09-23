@@ -182,7 +182,7 @@ namespace PRJCTA.HOLLOWECHOES
 
             if (inputManager._isDashing)
             {
-                if (!_isOnCooldown && dashCount < maxDashes && !inputManager._isInteracting)
+                if (!_isOnCooldown && dashCount < maxDashes)
                 {
                     playerAnimatorManager.PlayTargetAnimation("Dash", true);
                     dashCount++;

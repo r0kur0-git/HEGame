@@ -38,12 +38,75 @@ namespace PRJCTA.HOLLOWECHOES
             maxHealth = SetMaxHealthFromHealthLevel();
             currentHealth = maxHealth;
             healthbar.SetMaxHealth(maxHealth);
+
+            maxMana = SetMaxManaFromManaLevel();
+            manaBar.SetMaxMana(maxMana);
+        }
+
+        private void OnEnable()
+        {
+            FindCanvas();
+        }
+
+        void FindCanvas()
+        {
+            canvas = FindObjectOfType<Canvas>();
+
+            if (canvas != null)
+            {
+                manaBar = canvas.GetComponentInChildren<ManaBar>(true);
+            }
+        }
+
+        private void Update()
+        {
+            if (ComboRankSystem.Instance != null)
+            {
+                switch (ComboRankSystem.Instance.currentRank)
+                {
+                    case "D":
+                        currentMana -= 4 * Time.deltaTime;
+                        break;
+                    case "C":
+                        currentMana -= 2 * Time.deltaTime;
+                        break;
+                    case "B":
+                        currentMana -= 2 * Time.deltaTime;
+                        break;
+                    case "A":
+                        currentMana -= 1 * Time.deltaTime;
+                        break;
+                    case "S":
+                        break;
+                    default:
+                        currentMana -= 7 * Time.deltaTime;
+                        break;
+                }
+            }
+            currentMana = Mathf.Max(currentMana, 0);
+            manaBar.SetCurrentMana(currentMana);
         }
 
         private int SetMaxHealthFromHealthLevel()
         {
             maxHealth = healthLevel * 10;
             return maxHealth;
+        }
+
+        private int SetMaxManaFromManaLevel()
+        {
+            maxMana = manaLevel * 10;
+            return maxMana;
+        }
+
+        public void GainMana(int amount)
+        {
+            currentMana += amount;
+
+            if (currentMana > maxMana)
+                currentMana = maxMana;
+
+            Debug.Log("Player gained mana. Current mana: " + currentMana);
         }
 
         public void PlayerTakeDamage(int damage, ElementType elementalType)
