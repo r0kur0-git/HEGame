@@ -27,12 +27,12 @@ namespace PRJCTA.HOLLOWECHOES
         public int jumpCount = 0;
         public int maxJumps = 2;
         public int dashCount = 0;
-        public int maxDashes = 0;
+        public int maxDashes = 2;
         public int airborneTime = 0;
         private bool _isOnCooldown;
         private Coroutine resetRoutine;
-        [SerializeField] private float dashChainReset = 1f;
-        [SerializeField] private float dashCooldown = 1.0f;
+        public float dashChainReset = 1f;
+        public float dashCooldown = 1.0f;
         private float lastDashTime = -Mathf.Infinity;
         private float cooldownEndTime = -Mathf.Infinity;
 
@@ -57,7 +57,7 @@ namespace PRJCTA.HOLLOWECHOES
             inputManager = GetComponent<PlayerInputManager>();
             cameraObject = Camera.main.transform;
             characterController = GetComponent<CharacterController>();
-            animator = GetComponent<Animator>();
+            animator = GetComponentInChildren<Animator>();
             playerAnimatorManager = GetComponentInChildren<PlayerAnimatorManager>();
             playerAnimatorManager.Initialize();
         }
@@ -179,6 +179,9 @@ namespace PRJCTA.HOLLOWECHOES
             {
                 dashCount = 0;
             }
+
+            if (playerAnimatorManager.isAnimationPlaying)
+                return;
 
             if (inputManager._isDashing)
             {

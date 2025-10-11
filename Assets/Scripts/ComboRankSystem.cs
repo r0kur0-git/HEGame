@@ -54,12 +54,15 @@ namespace PRJCTA.HOLLOWECHOES
 
         void UpdateRank()
         {
+            float maxPoints = thresholds[thresholds.Length - 1];
+            rankPoints = Mathf.Min(rankPoints, maxPoints);
+
             for (int i = thresholds.Length - 1; i >= 0; i--)
             {
                 if (rankPoints >= thresholds[i])
                 {
                     currentRankIndex = i;
-                    currentRank = ranks[i];
+                    currentRank = ranks[Mathf.Min(i, ranks.Length - 1)];
 
                     // Only show text if not at the lowest rank
                     if (rankPoints > 0)
@@ -80,6 +83,7 @@ namespace PRJCTA.HOLLOWECHOES
         public void AddStylePoints(int amount)
         {
             rankPoints += amount;
+            rankPoints = Mathf.Min(rankPoints, thresholds[thresholds.Length - 1]);
             UpdateRank();
         }
 

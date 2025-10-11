@@ -19,6 +19,9 @@ namespace PRJCTA.HOLLOWECHOES
         private void Start()
         {
             animator = GetComponent<Animator>();
+
+            if (PlayerDataManager.Instance != null)
+                LoadFromPlayerData();
         }
 
         private void OnAnimatorMove()
@@ -33,10 +36,34 @@ namespace PRJCTA.HOLLOWECHOES
         public void Initialize()
         {
             animator = GetComponent<Animator>();
-            playerLocomotion = GetComponent<PlayerLocomotion>();
+            playerLocomotion = GetComponentInParent<PlayerLocomotion>();
             inputManager = GetComponentInParent<PlayerInputManager>();
             horizontal = Animator.StringToHash("Horizontal");
             vertical = Animator.StringToHash("Vertical");
+        }
+
+        public void SaveToPlayerData(WeaponType type)
+        {
+            if (PlayerDataManager.Instance != null)
+                PlayerDataManager.Instance.playerData.currentWeaponType = type;
+        }
+
+        public void LoadFromPlayerData()
+        {
+            if (PlayerDataManager.Instance == null) return;
+
+            switch (PlayerDataManager.Instance.playerData.currentWeaponType)
+            {
+                case WeaponType.Sword:
+                    SwitchToSword();
+                    break;
+                case WeaponType.Wand:
+                    SwitchToDefault();
+                    break;
+                default:
+                    SwitchToDefault();
+                    break;
+            }
         }
 
         public void UpdateAnimatorValues(float horizontalMovement, float verticalMovement)
@@ -155,6 +182,7 @@ namespace PRJCTA.HOLLOWECHOES
         public void SwitchToSword()
         {
             animator.runtimeAnimatorController = swordController;
+            SaveToPlayerData(WeaponType.Sword);
         }
 
         public void SwitchToAxe()
@@ -165,6 +193,18 @@ namespace PRJCTA.HOLLOWECHOES
         public void SwitchToDefault()
         {
             animator.runtimeAnimatorController = baseController;
+            SaveToPlayerData(WeaponType.Wand);
+        }
+
+        public override void LaunchUp(float force)
+        {
+            playerLocomotion.velocity.y = force;
+            isUpperAttack = true;
+        }
+
+        public void IsUpperAttackFalse()
+        {
+            isUpperAttack = false;
         }
     }
 }

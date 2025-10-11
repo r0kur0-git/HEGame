@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace PRJCTA.HOLLOWECHOES
@@ -14,14 +15,23 @@ namespace PRJCTA.HOLLOWECHOES
         public WeaponItem[] weaponsInRightHandSlots = new WeaponItem[1];
         public int currentRightWeaponIndex = -1;
 
+        private void OnDisable()
+        {
+            SaveToPlayerData();
+        }
+
         private void Awake()
         {
             weaponSlotManager = GetComponentInChildren<WeaponSlotManager>();
-            playerAnimatorManager = GetComponent<PlayerAnimatorManager>();
+            playerAnimatorManager = GetComponentInChildren<PlayerAnimatorManager>();
         }
 
         private void Start()
         {
+            if (CompareTag("Player"))
+            {
+                LoadFromPlayerData();
+            }
             weaponSlotManager.LoadRightWeaponOnSlot(rightWeapon, true);
             DontDestroyOnLoad(rightWeapon);
         }
@@ -56,7 +66,29 @@ namespace PRJCTA.HOLLOWECHOES
                         playerAnimatorManager.SwitchToSword();
                         break;
                 }
+                SaveToPlayerData();
                 Debug.Log($"Equipped: {rightWeapon.WeaponType}");
+            }
+        }
+
+        public void SaveToPlayerData()
+        {
+            var data = PlayerDataManager.Instance.playerData;
+            data.rightWeapon = rightWeapon;
+            data.currentRightWeaponIndex = currentRightWeaponIndex;
+            data.weaponsInRightHandSlots = new System.Collections.Generic.List<WeaponItem>(weaponsInRightHandSlots);
+        }
+
+        public void LoadFromPlayerData()
+        {
+            var data = PlayerDataManager.Instance.playerData;
+
+            rightWeapon = data.rightWeapon;
+            currentRightWeaponIndex = data.currentRightWeaponIndex;
+
+            if (data.weaponsInRightHandSlots != null && data.weaponsInRightHandSlots.Count > 0)
+            {
+                weaponsInRightHandSlots = data.weaponsInRightHandSlots.ToArray();
             }
         }
     }

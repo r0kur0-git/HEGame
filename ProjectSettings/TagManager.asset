@@ -12,6 +12,7 @@ TagManager:
   - Object
   - eHPBar
   - Sword
+  - iFrame
   layers:
   - Default
   - TransparentFX
@@ -25,8 +26,8 @@ TagManager:
   - Controller
   - Player
   - WBridge
-  - 
-  - 
+  - iFrame
+  - Collision Blocker
   - 
   - 
   - 

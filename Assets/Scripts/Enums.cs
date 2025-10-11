@@ -25,4 +25,29 @@ namespace PRJCTA.HOLLOWECHOES
         Ice,
         Electric,
     }
+
+    public enum BoonType
+    {
+        weaponUpgrade,
+        abilityUpgrade,
+        healthUpgrade,
+        speedUpgrade,
+        utility,
+    }
+
+    public enum AbilityType
+    {
+        None,
+        SwitchSword,
+        FireDoT,
+        IceDoT,
+        LightningDoT,
+    }
+
+    public enum UtilityType
+    {
+        doubleJump,
+        doubleDash,
+        HealingOverTime,
+    }
 }

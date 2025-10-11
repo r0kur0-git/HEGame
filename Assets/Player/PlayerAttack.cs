@@ -11,7 +11,6 @@ namespace PRJCTA.HOLLOWECHOES
         PlayerInputManager inputManager;
         WeaponHolderSlot weaponHolderSlot;
         PlayerManager playerManager;
-        PlayerLocomotion playerLocomotion;
         PlayerStats playerStats;
         WeaponInventory weaponInventory;
 
@@ -21,10 +20,10 @@ namespace PRJCTA.HOLLOWECHOES
         {
             weaponInventory = GetComponent<WeaponInventory>();
             animatorHandler = GetComponentInChildren<AnimatorHandler>();
-            inputManager = GetComponentInChildren<PlayerInputManager>();
-            weaponHolderSlot = GetComponentInParent<WeaponHolderSlot>();
+            inputManager = GetComponent<PlayerInputManager>();
+            weaponHolderSlot = GetComponentInChildren<WeaponHolderSlot>();
             playerManager = GetComponent<PlayerManager>();
-            playerStats = GetComponentInParent<PlayerStats>();
+            playerStats = GetComponent<PlayerStats>();
         }
 
         public void HandleWeaponCombo(WeaponItem weapon, WeaponType weaponType)
@@ -133,7 +132,7 @@ namespace PRJCTA.HOLLOWECHOES
                                     Debug.Log("Sword Special Attack");
                                 }
                             }
-                            else
+                            /*else
                             {
                                 if (lastAttack == weapon.AttackSeq3)
                                 {
@@ -145,15 +144,18 @@ namespace PRJCTA.HOLLOWECHOES
                                         Debug.Log("Wand Special Attack");
                                     }
                                 }
-                            }
+                            }*/
                         }
                         
                         break;
 
                     case WeaponType.Sword:
-                        animatorHandler.PlayTargetAnimation(weapon.AttackSpecial1, true);
-                        inputManager._actionTriggered = true;
-                        lastAttack = weapon.AttackSeq3;
+                        if (lastAttack == weapon.AttackSeq3)
+                        {
+                            animatorHandler.PlayTargetAnimation(weapon.AttackSpecial1, true);
+                            inputManager._actionTriggered = true;
+                            lastAttack = weapon.AttackSeq3;
+                        }
                         break;
                 }
             }

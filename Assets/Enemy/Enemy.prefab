@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7309557116098466513}
-  - component: {fileID: 2191589725205985909}
+  - component: {fileID: 5458683273195763082}
   m_Layer: 6
   m_Name: Navmesh Agent
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5517634543619957950}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!195 &2191589725205985909
+--- !u!195 &5458683273195763082
 NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,7 +46,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 1
+  m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -320,6 +320,7 @@ MonoBehaviour:
   combatStanceState: {fileID: 1864337686241263703}
   enemyAttacks:
   - {fileID: 11400000, guid: 1c8f2568f9ab5434c8f4c4d3b1099369, type: 2}
+  - {fileID: 11400000, guid: 55489a8df01e2d242a3e4f5641fe078f, type: 2}
   currentAttack: {fileID: 0}
 --- !u!1001 &5411121266031133525
 PrefabInstance:
@@ -331,7 +332,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 112f104842854ee4a86f0a85ed3122cb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.84
+      value: 14.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 112f104842854ee4a86f0a85ed3122cb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -491,7 +492,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1600
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -513,15 +514,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd818edadf1eddc45a9637ff561c752a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthLevel: 20
+  healthLevel: 99
+  manaLevel: 10
   maxHealth: 0
   currentHealth: 0
+  maxMana: 0
+  currentMana: 0
   healingDone: 0
   baseAttackDamage: 10
   bonusAttackDamage: 0
   isDead: 0
   enemyHealthbar: {fileID: 0}
   healthbar: {fileID: 0}
+  manaBar: {fileID: 0}
   canvas: {fileID: 0}
   playerStats: {fileID: 0}
   enemyHead: {fileID: 2077038193000955925}
@@ -543,7 +548,7 @@ MonoBehaviour:
   characterController: {fileID: 0}
   animator: {fileID: 0}
   wand: {fileID: 0}
-  navMeshAgent: {fileID: 2191589725205985909}
+  navMeshAgent: {fileID: 0}
   enemyRigidbody: {fileID: 0}
   currentState: {fileID: 2903577102703900640}
   currentTarget: {fileID: 0}
@@ -551,6 +556,7 @@ MonoBehaviour:
   isParried: 0
   rotationSpeed: 100
   maximumAttackRange: 7
+  maximumFollowRange: 1
   distanceFromTarget: 0
   detectionRadius: 10
   maximumDetectionAngle: 360
@@ -568,6 +574,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 075c57690a3c18a42bc26d93328d092f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groundCheckDistance: 0.3
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  isGrounded: 0
 --- !u!114 &2740090836821611563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -581,6 +592,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  isUpperAttack: 0
+  enemyManager: {fileID: 0}
+  isLaunched: 0
 --- !u!114 &2521639625750644658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -610,7 +624,7 @@ MonoBehaviour:
   rightWeapon: {fileID: 11400000, guid: a6379c42bbb6b2148ac1aaadb89389ac, type: 2}
   weaponsInRightHandSlots:
   - {fileID: 0}
-  currentRightWeaponIndex: -1
+  currentRightWeaponIndex: 1
 --- !u!4 &5517634543619957950 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 112f104842854ee4a86f0a85ed3122cb, type: 3}

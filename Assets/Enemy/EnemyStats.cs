@@ -29,7 +29,7 @@ namespace PRJCTA.HOLLOWECHOES
         {
             maxHealth = SetMaxHealthFromHealthLevel();
             currentHealth = maxHealth;
-            enemyHealthbar.SetMaxHealth(maxHealth);
+            enemyHealthbar.SetMaxHealth((int)maxHealth);
             //particleSystem.Stop();
         }
 
@@ -71,7 +71,7 @@ namespace PRJCTA.HOLLOWECHOES
             }
         }
 
-        private int SetMaxHealthFromHealthLevel()
+        private float SetMaxHealthFromHealthLevel()
         {
             maxHealth = healthLevel * 10;
             return maxHealth;
@@ -109,7 +109,7 @@ namespace PRJCTA.HOLLOWECHOES
             {
                 enemyHealthbar.SetTarget(enemyHead);
                 enemyHealthbar.image.SetActive(true);
-                enemyHealthbar.SetCurrentHealth(currentHealth);
+                enemyHealthbar.SetCurrentHealth((int)currentHealth);
             }
 
             animator.Play("Hit");
@@ -173,7 +173,7 @@ namespace PRJCTA.HOLLOWECHOES
             {
                 // Apply damage
                 currentHealth -= damagePerTick;
-                enemyHealthbar.SetCurrentHealth(currentHealth);
+                enemyHealthbar.SetCurrentHealth((int)currentHealth);
                 Debug.Log($"Damage: {damagePerTick} (Remaining HP: {currentHealth})");
 
                 if (!string.IsNullOrEmpty(tickAnimation))

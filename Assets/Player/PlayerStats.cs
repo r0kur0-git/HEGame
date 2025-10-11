@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace PRJCTA.HOLLOWECHOES
 
         public Dictionary<WeaponType, int> flatBonuses = new Dictionary<WeaponType, int>();
         public Dictionary<WeaponType, float> percentBonuses = new Dictionary<WeaponType, float>();
+        private Dictionary<string, int> boonLevels = new Dictionary<string, int>();
 
         public bool swordUnlocked = false;
         public bool swordExtension;
@@ -24,20 +26,15 @@ namespace PRJCTA.HOLLOWECHOES
         private void Awake()
         {
             animator = GetComponentInChildren<Animator>();
-            locomotion = GetComponent<PlayerLocomotion>();
-
-            foreach (WeaponType type in System.Enum.GetValues(typeof(WeaponType)))
-            {
-                flatBonuses[type] = 0;
-                percentBonuses[type] = 0;
-            }
+            locomotion = GetComponent<PlayerLocomotion>();            
         }
 
         void Start()
         {
+            LoadFromPlayerData();
             maxHealth = SetMaxHealthFromHealthLevel();
             currentHealth = maxHealth;
-            healthbar.SetMaxHealth(maxHealth);
+            healthbar.SetMaxHealth((int)maxHealth);
 
             maxMana = SetMaxManaFromManaLevel();
             manaBar.SetMaxMana(maxMana);
@@ -46,6 +43,11 @@ namespace PRJCTA.HOLLOWECHOES
         private void OnEnable()
         {
             FindCanvas();
+        }
+
+        private void OnDisable()
+        {
+            SaveToPlayerData();
         }
 
         void FindCanvas()
@@ -87,7 +89,7 @@ namespace PRJCTA.HOLLOWECHOES
             manaBar.SetCurrentMana(currentMana);
         }
 
-        private int SetMaxHealthFromHealthLevel()
+        private float SetMaxHealthFromHealthLevel()
         {
             maxHealth = healthLevel * 10;
             return maxHealth;
@@ -112,7 +114,7 @@ namespace PRJCTA.HOLLOWECHOES
         public void PlayerTakeDamage(int damage, ElementType elementalType)
         {
             currentHealth = currentHealth - damage;
-            healthbar.SetCurrentHealth(currentHealth);
+            healthbar.SetCurrentHealth((int)currentHealth);
 
             animator.Play("Hit");
 
@@ -149,77 +151,92 @@ namespace PRJCTA.HOLLOWECHOES
 
         public void ApplyBoon(BoonItem boon)
         {
-            switch (boon.boonType)
+            string key = boon.baseName;
+            int currentLevel = boonLevels.ContainsKey(key) ? boonLevels[key] : 0;
+
+            // Only apply if this boon’s level is exactly next
+            if (boon.level == currentLevel + 1)
             {
-                case BoonType.healthUpgrade:
-                    maxHealth += boon.statIncrease;
-                    currentHealth = maxHealth;
-                    Debug.Log($"Applied {boon.itemName}: Health increased to {maxHealth}");
-                    break;
+                switch (boon.boonType)
+                {
+                    case BoonType.healthUpgrade:
+                        maxHealth += boon.statIncrease;
+                        currentHealth = maxHealth;
+                        Debug.Log($"Applied {boon.itemName}: Health increased to {maxHealth}");
+                        break;
 
-                case BoonType.speedUpgrade:
-                    locomotion.movementSpeed += boon.statIncrease;
-                    Debug.Log($"Applied {boon.itemName}: Speed increased to {locomotion.movementSpeed}");
-                    break;
+                    case BoonType.speedUpgrade:
+                        locomotion.movementSpeed += boon.statIncrease;
+                        Debug.Log($"Applied {boon.itemName}: Speed increased to {locomotion.movementSpeed}");
+                        break;
 
-                case BoonType.weaponUpgrade:
-                    flatBonuses[boon.affectedWeaponType] += boon.flatAttackBonus;
-                    percentBonuses[boon.affectedWeaponType] += boon.percentAttackBonus;
+                    case BoonType.weaponUpgrade:
+                        flatBonuses[boon.affectedWeaponType] += boon.flatAttackBonus;
+                        percentBonuses[boon.affectedWeaponType] += boon.percentAttackBonus;
 
-                    Debug.Log($"Applied {boon.itemName} + {boon.flatAttackBonus} flat, + {boon.percentAttackBonus * 100}% for {boon.affectedWeaponType}");
-                    break;
+                        Debug.Log($"Applied {boon.itemName} + {boon.flatAttackBonus} flat, + {boon.percentAttackBonus * 100}% for {boon.affectedWeaponType}");
+                        break;
 
-                case BoonType.abilityUpgrade:
-                    switch (boon.abilityName)
-                    {
-                        case "switch sword":
-                            UnlockSword(WeaponType.Sword);
-                            Debug.Log($"Applied ability upgrade: {boon.itemName}");
-                            break;
-
-                        case "Fire DoT":
-                            hasFireDoT = true;
-                            Debug.Log($"Applied ability upgrade: {boon.itemName}");
-                            break;
-
-                        case "Ice DoT":
-                            hasIceDoT = true;
-                            Debug.Log($"Applied ability upgrade: {boon.itemName}");
-                            break;
-
-                        case "Lightning DoT":
-                            hasLightningDoT = true;
-                            Debug.Log($"Applied ability upgrade: {boon.itemName}");
-                            break;
-
-                        case "Sword Combo Ex":
-                            if (swordUnlocked == true)
-                            {
-                                SwordEx(WeaponType.Sword);
+                    case BoonType.abilityUpgrade:
+                        switch (boon.abilityType)
+                        {
+                            case AbilityType.SwitchSword:
+                                if (swordUnlocked == false)
+                                {
+                                    UnlockSword(WeaponType.Sword);
+                                }
+                                else if (swordUnlocked == true)
+                                {
+                                    swordExtension = true;
+                                    SwordEx(WeaponType.Sword);
+                                }
                                 Debug.Log($"Applied ability upgrade: {boon.itemName}");
-                            }
-                            break;
-                    }
-                    break;
+                                break;
 
-                case BoonType.utility:
-                    switch (boon.utilityType)
-                    {
-                        case UtilityType.doubleJump:
-                            locomotion.maxJumps = 2;
-                            Debug.Log($"Applied {boon.itemName} + Obtained double jump");
-                            break;
+                            case AbilityType.FireDoT:
+                                hasFireDoT = true;
+                                Debug.Log($"Applied ability upgrade: {boon.itemName}");
+                                break;
 
-                        case UtilityType.doubleDash:
-                            locomotion.maxDashes = 2;
-                            Debug.Log($"Applied {boon.itemName} + Obtained double dash");
-                            break;
+                            case AbilityType.IceDoT:
+                                hasIceDoT = true;
+                                Debug.Log($"Applied ability upgrade: {boon.itemName}");
+                                break;
 
-                        case UtilityType.HealingOverTime:
-                            break;
-                    }
-                    break;
+                            case AbilityType.LightningDoT:
+                                hasLightningDoT = true;
+                                Debug.Log($"Applied ability upgrade: {boon.itemName}");
+                                break;
+                        }
+                        break;
+
+                    case BoonType.utility:
+                        switch (boon.utilityType)
+                        {
+                            case UtilityType.doubleJump:
+                                locomotion.maxJumps = 2;
+                                Debug.Log($"Applied {boon.itemName} + Obtained double jump");
+                                break;
+
+                            case UtilityType.doubleDash:
+                                locomotion.maxDashes = 2;
+                                Debug.Log($"Applied {boon.itemName} + Obtained double dash");
+                                break;
+
+                            case UtilityType.HealingOverTime:
+                                break;
+                        }
+                        break;
+                }
+
+                boonLevels[key] = boon.level;
             }
+            else
+            {
+                Debug.Log($"Cannot apply {boon.itemName} Level {boon.level}, previous levels missing.");
+            }
+
+            
         }
 
         public int GetAttackDamage(WeaponType type)
@@ -227,9 +244,8 @@ namespace PRJCTA.HOLLOWECHOES
             int damage = baseAttackDamage;
 
             damage += flatBonuses[type];
-            damage += flatBonuses[WeaponType.All];
 
-            float multiplier = 1f + percentBonuses[type] + percentBonuses[WeaponType.All];
+            float multiplier = 1f + percentBonuses[type];
             damage = Mathf.RoundToInt(damage * multiplier);
 
             return damage;
@@ -245,8 +261,76 @@ namespace PRJCTA.HOLLOWECHOES
         public void SwordEx(WeaponType type)
         {
             type = WeaponType.Sword;
-            swordExtension = true;
             Debug.Log("Player weapon combo unlocked: " + type + " extension");
+        }
+
+        private void InitializeDictionaries()
+        {
+            foreach (WeaponType type in Enum.GetValues(typeof(WeaponType)))
+            {
+                if (!flatBonuses.ContainsKey(type))
+                    flatBonuses[type] = 0;
+
+                if (!percentBonuses.ContainsKey(type))
+                    percentBonuses[type] = 0f;
+            }
+        }
+
+        public void SaveToPlayerData()
+        {
+            var data = PlayerDataManager.Instance.playerData;
+
+            data.flatBonuses = new Dictionary<WeaponType, int>(flatBonuses);
+            data.percentBonuses = new Dictionary<WeaponType, float>(percentBonuses);
+            InitializeDictionaries();
+
+            data.maxHealth = (int)maxHealth;
+            data.currentHealth = (int)currentHealth;
+            data.maxMana = maxMana;
+            data.currentMana = currentMana;
+            data.baseAttackDamage = baseAttackDamage;
+
+            data.swordUnlocked = swordUnlocked;
+            data.swordExtension = swordExtension;
+            data.hasFireDoT = hasFireDoT;
+            data.hasIceDoT = hasIceDoT;
+            data.hasLightningDoT = hasLightningDoT;
+
+            // movement upgrades
+            data.maxJumps = locomotion.maxJumps;
+            data.maxDashes = locomotion.maxDashes;
+        }
+
+        public void LoadFromPlayerData()
+        {
+            var data = PlayerDataManager.Instance.playerData;
+
+            flatBonuses = new Dictionary<WeaponType, int>(data.flatBonuses);
+            percentBonuses = new Dictionary<WeaponType, float>(data.percentBonuses);
+            InitializeDictionaries();
+
+            maxHealth = data.maxHealth;
+            currentHealth = data.currentHealth;
+            maxMana = data.maxMana;
+            currentMana = data.currentMana;
+            baseAttackDamage = data.baseAttackDamage;
+
+            swordUnlocked = data.swordUnlocked;
+            swordExtension = data.swordExtension;
+            hasFireDoT = data.hasFireDoT;
+            hasIceDoT = data.hasIceDoT;
+            hasLightningDoT = data.hasLightningDoT;
+
+            locomotion.maxJumps = data.maxJumps;
+            locomotion.maxDashes = data.maxDashes;
+            locomotion.dashCooldown = data.dashCooldown;
+            locomotion.dashChainReset = data.dashChainReset;
+
+            // refresh UI
+            healthbar.SetMaxHealth((int)maxHealth);
+            healthbar.SetCurrentHealth((int)currentHealth);
+            manaBar.SetMaxMana(maxMana);
+            manaBar.SetCurrentMana(currentMana);
         }
     }
 }

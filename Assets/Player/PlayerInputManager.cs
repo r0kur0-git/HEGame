@@ -14,14 +14,14 @@ namespace PRJCTA.HOLLOWECHOES
         [HideInInspector] public float mouseX;
         [HideInInspector] public float mouseY;
 
-        [Header("Inputs\n")]
+        [Header("Inputs")]
         bool _jumpInput;
-        public bool _dashInput;
-        public bool _attackInput;
-        public bool _cycleWeaponInput;
-        public bool _specialInput;
+        [HideInInspector] public bool _dashInput;
+        [HideInInspector] public bool _attackInput;
+        [HideInInspector] public bool _cycleWeaponInput;
+        [HideInInspector] public bool _specialInput;
 
-        [Header("Flags\n")]
+        [Header("Flags")]
         public bool _isJumping;
         public bool _isDashing;
         public bool _combo;
