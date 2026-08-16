@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace PRJCTA.HOLLOWECHOES
@@ -10,18 +11,19 @@ namespace PRJCTA.HOLLOWECHOES
         PlayerInputManager inputManager;
         WeaponHolderSlot weaponHolderSlot;
         PlayerManager playerManager;
-        PlayerLocomotion playerLocomotion;
         PlayerStats playerStats;
+        WeaponInventory weaponInventory;
 
         public string lastAttack;
 
         private void Awake()
         {
+            weaponInventory = GetComponent<WeaponInventory>();
             animatorHandler = GetComponentInChildren<AnimatorHandler>();
-            inputManager = GetComponentInChildren<PlayerInputManager>();
-            weaponHolderSlot = GetComponentInParent<WeaponHolderSlot>();
+            inputManager = GetComponent<PlayerInputManager>();
+            weaponHolderSlot = GetComponentInChildren<WeaponHolderSlot>();
             playerManager = GetComponent<PlayerManager>();
-            playerStats = GetComponentInParent<PlayerStats>();
+            playerStats = GetComponent<PlayerStats>();
         }
 
         public void HandleWeaponCombo(WeaponItem weapon, WeaponType weaponType)
@@ -69,9 +71,95 @@ namespace PRJCTA.HOLLOWECHOES
                         }
                             break;
                         case WeaponType.Sword:
+                        if (playerManager.isGrounded)
+                        {
+                            if (lastAttack == weapon.AttackSeq1)
+                            {
+                                animatorHandler.PlayTargetAnimation(weapon.AttackSeq2, true);
+                                inputManager._actionTriggered = true;
+                                lastAttack = weapon.AttackSeq2;
+                                Debug.Log("Ground Attack 2");
+                            }
+                            else if (lastAttack == weapon.AttackSeq2)
+                            {
+                                animatorHandler.PlayTargetAnimation(weapon.AttackSeq3, true);
+                                inputManager._actionTriggered = true;
+                                lastAttack = weapon.AttackSeq3;
+                                Debug.Log("Ground Attack 3");
+                            }
+                        }
+                        else // not grounded
+                        {
+                            if (lastAttack == weapon.A_AttackSeq1)
+                            {
+                                animatorHandler.PlayTargetAnimation(weapon.A_AttackSeq2, true);
+                                inputManager._actionTriggered = true;
+                                lastAttack = weapon.A_AttackSeq2;
+                                Debug.Log("Air Attack 2");
+                            }
+                            else if (lastAttack == weapon.A_AttackSeq2)
+                            {
+                                animatorHandler.PlayTargetAnimation(weapon.A_AttackSeq3, true);
+                                inputManager._actionTriggered = true;
+                                lastAttack = weapon.A_AttackSeq3;
+                                Debug.Log("Air Attack 3");
+                            }
+                        }
                         break;
                 }
             }
+        }
+
+        public void HandleSpecialAttack(WeaponItem weapon, WeaponType weaponType)
+        {
+            if (inputManager._combo)
+            {
+                animatorHandler.animator.SetBool("canDoCombo", false);
+
+                switch (weaponType)
+                {
+                    case WeaponType.Wand:
+                        if (playerManager.isGrounded)
+                        {
+                            if (playerStats.swordExtension) 
+                            {
+                                if (lastAttack == weapon.AttackSeq3)
+                                {
+                                    animatorHandler.PlayTargetAnimation(weapon.AttackSpecial1, true);
+                                    weaponInventory.ChangeRightWeapon();
+                                    inputManager._actionTriggered = true;
+                                    lastAttack = weapon.AttackSpecial1;
+                                    Debug.Log("Sword Special Attack");
+                                }
+                            }
+                            /*else
+                            {
+                                if (lastAttack == weapon.AttackSeq3)
+                                {
+                                    if (weaponType == WeaponType.Wand)
+                                    {
+                                        animatorHandler.PlayTargetAnimation(weapon.AttackSpecial1, true);
+                                        inputManager._actionTriggered = true;
+                                        lastAttack = weapon.AttackSpecial1;
+                                        Debug.Log("Wand Special Attack");
+                                    }
+                                }
+                            }*/
+                        }
+                        
+                        break;
+
+                    case WeaponType.Sword:
+                        if (lastAttack == weapon.AttackSeq3)
+                        {
+                            animatorHandler.PlayTargetAnimation(weapon.AttackSpecial1, true);
+                            inputManager._actionTriggered = true;
+                            lastAttack = weapon.AttackSeq3;
+                        }
+                        break;
+                }
+            }
+
         }
 
         public void HandleBasicAttack(WeaponItem weapon, WeaponType weaponType)
@@ -98,10 +186,22 @@ namespace PRJCTA.HOLLOWECHOES
                     break;
 
                 case WeaponType.Sword:
-                    animatorHandler.PlayTargetAnimation(weapon.AttackSeq1, true);
-                    inputManager._actionTriggered = true;
-                    lastAttack = weapon.AttackSeq1;
-                    Debug.Log("Attack 1");
+                    if (playerManager.isGrounded)
+                    {
+                        // Ground attack
+                        animatorHandler.PlayTargetAnimation(weapon.AttackSeq1, true);
+                        inputManager._actionTriggered = true;
+                        lastAttack = weapon.AttackSeq1;
+                        Debug.Log("Ground Sword Attack");
+                    }
+                    else
+                    {
+                        // Aerial attack
+                        animatorHandler.PlayTargetAnimation(weapon.A_AttackSeq1, true);
+                        inputManager._actionTriggered = true;
+                        lastAttack = weapon.A_AttackSeq1;
+                        Debug.Log("Aerial Sword Attack");
+                    }
                     break;
             }
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace PRJCTA.HOLLOWECHOES
@@ -11,7 +12,7 @@ namespace PRJCTA.HOLLOWECHOES
         PlayerInputManager inputManager;
         PlayerManager playerManager;
         Transform cameraObject;
-        AnimatorHandler animatorHandler;
+        PlayerAnimatorManager playerAnimatorManager;
         Animator animator;
         public CharacterController characterController;
 
@@ -26,13 +27,20 @@ namespace PRJCTA.HOLLOWECHOES
         public int jumpCount = 0;
         public int maxJumps = 2;
         public int dashCount = 0;
-        public int maxDashes = 0;
+        public int maxDashes = 2;
+        public int airborneTime = 0;
         private bool _isOnCooldown;
         private Coroutine resetRoutine;
-        [SerializeField] private float dashChainReset = 1f;
-        [SerializeField] private float dashCooldown = 1.0f;
+        public float dashChainReset = 1f;
+        public float dashCooldown = 1.0f;
         private float lastDashTime = -Mathf.Infinity;
         private float cooldownEndTime = -Mathf.Infinity;
+
+        [Header("Downward Force Settings")]
+        public float _force = 100f;
+        public float _offset;
+        public float _radius;
+        public LayerMask bridgeLayer;
 
         [Header("Ground Check Settings")]
         public bool _isFalling;
@@ -49,9 +57,9 @@ namespace PRJCTA.HOLLOWECHOES
             inputManager = GetComponent<PlayerInputManager>();
             cameraObject = Camera.main.transform;
             characterController = GetComponent<CharacterController>();
-            animator = GetComponent<Animator>();
-            animatorHandler = GetComponentInChildren<AnimatorHandler>();
-            animatorHandler.Initialize();
+            animator = GetComponentInChildren<Animator>();
+            playerAnimatorManager = GetComponentInChildren<PlayerAnimatorManager>();
+            playerAnimatorManager.Initialize();
         }
 
         private void Update()
@@ -64,7 +72,12 @@ namespace PRJCTA.HOLLOWECHOES
             HandleGravityAndJump(delta);
             HandleDashing(delta);
 
-            animatorHandler.UpdateAnimatorValues(inputManager.moveAmount, 0);
+            playerAnimatorManager.UpdateAnimatorValues(inputManager.moveAmount, 0);
+        }
+
+        private void FixedUpdate()
+        {
+            ApplyWeightToBridge();
         }
 
         #region Movement
@@ -74,7 +87,7 @@ namespace PRJCTA.HOLLOWECHOES
             if (inputManager._isInteracting)
                 return;
 
-            if (!_isGrounded && animatorHandler.isAnimationPlaying)
+            if (!_isGrounded && playerAnimatorManager.isAnimationPlaying)
                 return;
 
             moveDirection = cameraObject.forward * inputManager.vertical;
@@ -116,7 +129,7 @@ namespace PRJCTA.HOLLOWECHOES
 
         private void HandleGravityAndJump(float delta)
         {
-            if (_isGrounded && animatorHandler.isAnimationPlaying)
+            if (_isGrounded && playerAnimatorManager.isAnimationPlaying)
                 return;
 
             _isGrounded = characterController.isGrounded;
@@ -134,7 +147,7 @@ namespace PRJCTA.HOLLOWECHOES
                 jumpCount++;
             }
 
-            if (animatorHandler.isAnimationPlaying)
+            if (playerAnimatorManager.isAnimationPlaying)
             {
                 velocity.y = 0;
             }
@@ -143,10 +156,15 @@ namespace PRJCTA.HOLLOWECHOES
                 velocity.y += gravity * delta;
             }
 
-            animatorHandler.Grounded();
-            animatorHandler.Falling();
+            playerAnimatorManager.Grounded();
+            playerAnimatorManager.Falling();
 
             characterController.Move(velocity * delta);
+        }
+
+        private void HandleGravitySuspension(float delta)
+        {
+            velocity.y = 0;
         }
 
         private void HandleDashing(float delta)
@@ -162,11 +180,14 @@ namespace PRJCTA.HOLLOWECHOES
                 dashCount = 0;
             }
 
+            if (playerAnimatorManager.isAnimationPlaying)
+                return;
+
             if (inputManager._isDashing)
             {
-                if (!_isOnCooldown && dashCount < maxDashes && !inputManager._isInteracting)
+                if (!_isOnCooldown && dashCount < maxDashes)
                 {
-                    animatorHandler.PlayTargetAnimation("Dash", true);
+                    playerAnimatorManager.PlayTargetAnimation("Dash", true);
                     dashCount++;
                     lastDashTime = Time.time;
 
@@ -181,6 +202,24 @@ namespace PRJCTA.HOLLOWECHOES
             }
         }
 
+        void ApplyWeightToBridge()
+        {
+            var cols = Physics.OverlapSphere(transform.position - new Vector3(0, _offset, 0), _radius, bridgeLayer);
+
+            foreach (var col in cols)
+            {
+                if (col.attachedRigidbody != null)
+                {
+                    // Simulate player weight on the bridge
+                    col.attachedRigidbody.AddForceAtPosition(
+                        Vector3.down * _force,
+                        transform.position,
+                        ForceMode.Force
+                    );
+                }
+            }
+        }
+
         #endregion
 
         private void OnDrawGizmosSelected()
@@ -188,6 +227,10 @@ namespace PRJCTA.HOLLOWECHOES
             Gizmos.color = Color.green;
             Vector3 origin = transform.position + Vector3.up * 0.2f;
             Gizmos.DrawWireSphere(origin + Vector3.down * groundCheckDistance, groundCheckRadius);
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position + (Vector3.up * -_offset), _radius);
+            Gizmos.DrawRay(transform.position, -transform.up);
         }
     }
 }

@@ -6,8 +6,8 @@ namespace PRJCTA.HOLLOWECHOES
 {
     public class WeaponSlotManager : MonoBehaviour
     {
-        WeaponHolderSlot leftHandSlot;
         WeaponHolderSlot rightHandSlot;
+        DamageApplicator damageCollider;
 
         public bool vfx;
 
@@ -31,7 +31,25 @@ namespace PRJCTA.HOLLOWECHOES
             if (isRight)
             {
                 rightHandSlot.LoadWeaponModel(weaponItem);
+                LoadRightWeaponDamageCollider();
             }
         }
+
+        private void LoadRightWeaponDamageCollider()
+        {
+            damageCollider = rightHandSlot.currentWeaponModel.GetComponentInChildren<DamageApplicator>();
+        }
+
+        public void OpenRightDamageCollider()
+        {
+            damageCollider.EnableDamageCollider();
+            vfx = true;
+        }
+        public void CloseRightDamageCollider()
+        {
+            damageCollider.DisableDamageCollider();
+            vfx = false;
+        }
+
     }
 }

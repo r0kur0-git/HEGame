@@ -47,6 +47,8 @@ namespace PRJCTA.HOLLOWECHOES
             inputManager._isJumping = false;
             inputManager._attackInput = false;
             inputManager._dashInput = false;
+            inputManager._cycleWeaponInput = false;
+            inputManager._specialInput = false;
         }
 
         private void OnControllerColliderHit(ControllerColliderHit hit)

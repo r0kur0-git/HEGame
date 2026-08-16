@@ -10,7 +10,7 @@ namespace PRJCTA.HOLLOWECHOES
         // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
         override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            animator.GetComponent<AnimatorHandler>()?.AnimationStarted();
+            animator.GetComponent<PlayerAnimatorManager>()?.AnimationStarted();
         }
 
         // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -22,7 +22,7 @@ namespace PRJCTA.HOLLOWECHOES
         // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
         override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            animator.GetComponent<AnimatorHandler>()?.AnimationFinished();
+            animator.GetComponent<PlayerAnimatorManager>()?.AnimationFinished();
         }
 
         // OnStateMove is called right after Animator.OnAnimatorMove()

@@ -24,7 +24,7 @@ namespace PRJCTA.HOLLOWECHOES
         override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.SetBool("isInteracting", status);
-            animator.GetComponent<AnimatorHandler>()?.AnimationFinished();
+            animator.GetComponent<PlayerAnimatorManager>()?.AnimationFinished();
         }
 
         // OnStateMove is called right after Animator.OnAnimatorMove()

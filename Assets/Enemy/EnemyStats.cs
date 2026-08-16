@@ -10,7 +10,7 @@ namespace PRJCTA.HOLLOWECHOES
         public PlayerStats playerStats;
         public Transform enemyHead;
         public GameObject destroyOnDeath;
-        public new ParticleSystem particleSystem;
+        //public new ParticleSystem particleSystem;
         public GameObject enemyLockOn;
         public GameObject spawnObject;
 
@@ -29,8 +29,8 @@ namespace PRJCTA.HOLLOWECHOES
         {
             maxHealth = SetMaxHealthFromHealthLevel();
             currentHealth = maxHealth;
-            enemyHealthbar.SetMaxHealth(maxHealth);
-            particleSystem.Stop();
+            enemyHealthbar.SetMaxHealth((int)maxHealth);
+            //particleSystem.Stop();
         }
 
         private void OnEnable()
@@ -71,7 +71,7 @@ namespace PRJCTA.HOLLOWECHOES
             }
         }
 
-        private int SetMaxHealthFromHealthLevel()
+        private float SetMaxHealthFromHealthLevel()
         {
             maxHealth = healthLevel * 10;
             return maxHealth;
@@ -79,8 +79,38 @@ namespace PRJCTA.HOLLOWECHOES
 
         public void EnemyTakeDamage(int damage, ElementType elementalType)
         {
-            currentHealth = currentHealth - damage;
-            enemyHealthbar.SetCurrentHealth(currentHealth);
+            currentHealth -= damage;
+            ComboRankSystem.Instance.AddStylePoints(25);
+
+            if (playerStats != null)
+            {
+                switch (ComboRankSystem.Instance.currentRank)
+                {
+                    case "D":
+                        playerStats.GainMana(10);
+                        break;
+                    case "C":
+                        playerStats.GainMana(5);
+                        break;
+                    case "B":
+                        playerStats.GainMana(7);
+                        break;
+                    case "A":
+                        playerStats.GainMana(10);
+                        break;
+                    case "S":
+                        playerStats.GainMana(20);
+                        break;
+                }
+            }
+
+            // Show health bar only when damaged
+            if (enemyHealthbar != null)
+            {
+                enemyHealthbar.SetTarget(enemyHead);
+                enemyHealthbar.image.SetActive(true);
+                enemyHealthbar.SetCurrentHealth((int)currentHealth);
+            }
 
             animator.Play("Hit");
 
@@ -96,8 +126,6 @@ namespace PRJCTA.HOLLOWECHOES
                     animator.Play("Death");
                     StartCoroutine(DestroyEnemy());
                     GetComponent<EnemyManager>().enabled = false;
-                    //GetComponent<EnemyWeaponSlotManager>().enabled = false;
-                    //particleSystem.Play();
 
                     Destroy(destroyOnDeath);
                 }
@@ -111,12 +139,9 @@ namespace PRJCTA.HOLLOWECHOES
                     break;
 
                 case ElementType.Fire:
-                    if (playerStats != null)
+                    if (playerStats != null && playerStats.hasFireDoT)
                     {
-                        if (playerStats.hasFireDoT)
-                        {
-                            ApplyDamageOverTime(3, 1f, 5f, "");
-                        }
+                        ApplyDamageOverTime(3, 1f, 5f, "");
                     }
                     print("burning");
                     break;
@@ -129,7 +154,7 @@ namespace PRJCTA.HOLLOWECHOES
                     ApplyDamageOverTime(5, 1.5f, 5, "Hit");
                     print("shock");
                     break;
-                // Add cases for other elemental types if needed
+
                 default:
                     break;
             }
@@ -148,7 +173,7 @@ namespace PRJCTA.HOLLOWECHOES
             {
                 // Apply damage
                 currentHealth -= damagePerTick;
-                enemyHealthbar.SetCurrentHealth(currentHealth);
+                enemyHealthbar.SetCurrentHealth((int)currentHealth);
                 Debug.Log($"Damage: {damagePerTick} (Remaining HP: {currentHealth})");
 
                 if (!string.IsNullOrEmpty(tickAnimation))

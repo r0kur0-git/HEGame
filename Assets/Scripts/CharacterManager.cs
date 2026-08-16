@@ -12,9 +12,8 @@ namespace PRJCTA.HOLLOWECHOES
 
         public void Awake()
         {
-            DontDestroyOnLoad(this);
 
-            characterController = GetComponent<CharacterController>();
+            characterController = GetComponentInParent<CharacterController>();
             animator = GetComponent<Animator>();
         }
 
@@ -25,7 +24,7 @@ namespace PRJCTA.HOLLOWECHOES
 
         private void Start()
         {
-            //wand = FindObjectOfType<Wand>();
+            wand = FindObjectOfType<Wand>();
             wand.OnSpawned += OnWandSpawned; // Subscribe to the OnSpawned event of the Wand script
             AnimationEventSystem.OnAnimationEventTriggered += HandleBasicAnimationEvent;
         }

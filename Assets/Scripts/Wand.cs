@@ -6,15 +6,6 @@ using System;
 
 namespace PRJCTA.HOLLOWECHOES
 {
-    public enum ElementType
-    {
-        None,
-        Fire,
-        Ice,
-        Electric,
-        // Add more elemental types as needed
-    }
-
     public class Wand : MonoBehaviour
     {
         public Transform playerTransform;

@@ -14,15 +14,18 @@ namespace PRJCTA.HOLLOWECHOES
         [HideInInspector] public float mouseX;
         [HideInInspector] public float mouseY;
 
-        [Header("Inputs\n")]
+        [Header("Inputs")]
         bool _jumpInput;
-        public bool _dashInput;
-        public bool _attackInput;
+        [HideInInspector] public bool _dashInput;
+        [HideInInspector] public bool _attackInput;
+        [HideInInspector] public bool _cycleWeaponInput;
+        [HideInInspector] public bool _specialInput;
 
-        [Header("Flags\n")]
+        [Header("Flags")]
         public bool _isJumping;
         public bool _isDashing;
         public bool _combo;
+        public bool _specialAttack;
         public bool _isInteracting;
         public bool _actionTriggered;
 
@@ -32,14 +35,16 @@ namespace PRJCTA.HOLLOWECHOES
         PlayerControls inputActions;
         PlayerManager playerManager;
         PlayerAttack playerAttack;
-        PlayerWeaponInventory playerInventory;
+        PlayerStats playerStats;
+        WeaponInventory playerInventory;
         PlayerLocomotion playerLocomotion;
         AnimatorHandler animatorHandler;
 
         private void Awake()
         {
             playerAttack = GetComponent<PlayerAttack>();
-            playerInventory = GetComponent<PlayerWeaponInventory>();
+            playerStats = GetComponent<PlayerStats>();
+            playerInventory = GetComponent<WeaponInventory>();
             playerManager = GetComponentInChildren<PlayerManager>();
             animatorHandler = GetComponentInChildren<AnimatorHandler>();
         }
@@ -54,6 +59,8 @@ namespace PRJCTA.HOLLOWECHOES
                 inputActions.PlayerMovement.Movement.canceled += i => movementInput = Vector2.zero;
                 inputActions.PlayerMovement.Jump.performed += i => _jumpInput = true;
                 inputActions.PlayerMovement.Dash.performed += i => _dashInput = true;
+                inputActions.PlayerActions.CycleWeapon.performed += i => _cycleWeaponInput = true;
+                inputActions.PlayerActions.Special.performed += i => _specialInput = true;
             }
 
             inputActions.Enable();
@@ -69,7 +76,9 @@ namespace PRJCTA.HOLLOWECHOES
             HandleMoveInput(delta);
             HandleJumpInput(delta);
             HandleAttackInput(delta);
+            HandleSpecialInput(delta);
             HandleDashInput(delta);
+            HandleCycleWeaponInput();
         }
 
         public void HandleMoveInput(float delta)
@@ -121,6 +130,44 @@ namespace PRJCTA.HOLLOWECHOES
 
                     playerAttack.HandleBasicAttack(playerInventory.rightWeapon, playerInventory.rightWeapon.WeaponType);
                 }
+            }
+        }
+
+        public void HandleSpecialInput(float delta)
+        {
+            inputActions.PlayerActions.Special.performed += i => _specialInput = true;
+
+            if (_specialInput)
+            {
+                if (playerManager.canDoCombo)
+                {
+                    _combo = true;
+                    playerAttack.HandleSpecialAttack(playerInventory.rightWeapon, playerInventory.rightWeapon.WeaponType);
+                    _combo = false;
+                }
+                else
+                {
+                    if (playerManager.isInteracting)
+                        return;
+
+                    if (playerManager.canDoCombo)
+                        return;
+
+                    playerAttack.HandleSpecialAttack(playerInventory.rightWeapon, playerInventory.rightWeapon.WeaponType);
+                }
+            }
+        }
+
+        public void HandleCycleWeaponInput()
+        {
+            if (!playerStats.swordUnlocked)
+                return;
+
+            inputActions.PlayerActions.CycleWeapon.performed += i => _cycleWeaponInput = true;
+
+            if (_cycleWeaponInput)
+            {
+                playerInventory.ChangeRightWeapon();
             }
         }
     }

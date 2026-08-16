@@ -4,13 +4,6 @@ using UnityEngine;
 
 namespace PRJCTA.HOLLOWECHOES
 {
-    public enum WeaponType
-    {
-        All,
-        Wand,
-        Sword,
-    }
-
     [CreateAssetMenu(menuName = "Items/Weapon Item")]
 
     public class WeaponItem : Item
@@ -26,7 +19,7 @@ namespace PRJCTA.HOLLOWECHOES
         public string AttackSeq3;
 
         [Header("Special Attack")]
-        public string AttackSeqS1;
+        public string AttackSpecial1;
 
         [Header("Aerial Attack")]
         public string A_AttackSeq1;

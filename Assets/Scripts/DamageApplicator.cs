@@ -15,12 +15,23 @@ namespace PRJCTA.HOLLOWECHOES
 
         private Vector3 previousPosition;
         private Rigidbody rb;
+        Collider damageCollider;
+        WeaponInventory weaponInventory;
 
         private void Awake()
         {
+            damageCollider = GetComponent<Collider>();
+            damageCollider.gameObject.SetActive(true);
+            damageCollider.isTrigger = true;
+            damageCollider.enabled = false;
+
             if (CompareTag("Bullet"))
             {
                 Destroy(gameObject, life);
+            }
+            else
+            {
+                return;
             }
         }
 
@@ -28,11 +39,19 @@ namespace PRJCTA.HOLLOWECHOES
         {
             previousPosition = transform.position;
             rb = GetComponent<Rigidbody>();
+            weaponInventory = GetComponentInParent<WeaponInventory>();
         }
 
         private void FixedUpdate()
         {
-            StartCoroutine(Predict());
+            if (CompareTag("Bullet"))
+            {
+                StartCoroutine(Predict());
+            }
+            else
+            {
+                return;
+            }
         }
 
         IEnumerator Predict()
@@ -40,7 +59,7 @@ namespace PRJCTA.HOLLOWECHOES
             Vector3 prediction = transform.position + rb.velocity * Time.fixedDeltaTime;
             RaycastHit hit2;
 
-            int layerMask = ~(LayerMask.GetMask("Bullet") | LayerMask.GetMask("Spells") | LayerMask.GetMask("Controller")); // Ignore Bullet and Spell layers
+            int layerMask = ~(LayerMask.GetMask("Bullet") | LayerMask.GetMask("Spells") | LayerMask.GetMask("Controller") | LayerMask.GetMask("Collision Blocker")); // Ignore Bullet and Spell layers
 
             if (Physics.Linecast(transform.position, prediction, out hit2, layerMask))
             {
@@ -52,38 +71,73 @@ namespace PRJCTA.HOLLOWECHOES
             }
         }
 
+        public void EnableDamageCollider()
+        {
+            damageCollider.enabled = true;
+
+            PlayerStats playerStats = GetComponentInParent<PlayerStats>();
+            if (playerStats != null)
+            {
+                currentWeaponDamage = playerStats.GetAttackDamage(weaponInventory.weaponType);
+            }
+        }
+
+        public void DisableDamageCollider()
+        {
+            damageCollider.enabled = false;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             switch (objectType)
             {
                 case ObjectType.Enemy:
-                // Damage the enemy
-                EnemyStats enemyStats = other.GetComponent<EnemyStats>();
+                    // Damage the enemy
+                    EnemyStats enemyStats = other.GetComponentInParent<EnemyStats>();
+                    EnemyAnimatorManager enemyAnimatorManager = other.GetComponentInParent<EnemyAnimatorManager>();
+                    PlayerAnimatorManager playerAnim = GetComponentInParent<PlayerAnimatorManager>();
+
 
                 if (enemyStats != null)
-                {
-                    switch (elementalType)
                     {
-                        case ElementType.None:
-                            enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.None);
-                            break;
-                        case ElementType.Fire:
-                            enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.Fire);
-                            break;
-                        case ElementType.Ice:
-                            enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.Ice);
-                            break;
-                        case ElementType.Electric:
-                            enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.Electric);
-                            break;
-                        default:
-                            enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.None);
-                            break;
+                        switch (elementalType)
+                        {
+                            case ElementType.None:
+                                enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.None);
+                                break;
+                            case ElementType.Fire:
+                                enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.Fire);
+                                break;
+                            case ElementType.Ice:
+                                enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.Ice);
+                                break;
+                            case ElementType.Electric:
+                                enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.Electric);
+                                break;
+                            default:
+                                enemyStats.EnemyTakeDamage(currentWeaponDamage, ElementType.None);
+                                break;
+                        }
                     }
-                }
 
-                // Destroy the bullet
-                Destroy(gameObject);
+
+                    if (playerAnim != null && playerAnim.isUpperAttack && enemyAnimatorManager != null)
+                    {
+                        enemyAnimatorManager.LaunchUp(10f); // adjust force
+                    }
+                    else if (playerAnim != null && enemyAnimatorManager != null && enemyAnimatorManager.isLaunched)
+                    {
+                        enemyAnimatorManager.LaunchUp(2f);
+                    }
+                    else
+                    {
+                        Debug.Log("no enemy");
+                    }
+
+                    if (CompareTag("Bullet") && other.CompareTag("Enemy"))
+                    {
+                        Destroy(gameObject);
+                    }
 
                     break;
 
@@ -114,7 +168,7 @@ namespace PRJCTA.HOLLOWECHOES
                     break;
             }
 
-            if (other.CompareTag("Object"))
+            if (CompareTag("Bullet") && other.CompareTag("Object"))
             {
                 Destroy(gameObject);
             }
